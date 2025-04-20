@@ -22,7 +22,7 @@ def setup_logging():
         logging_config = yaml.safe_load(f)
         logging.config.dictConfig(logging_config)
 
-def validate_components():
+async def validate_components():  # Make this function asynchronous
     logger = logging.getLogger(__name__)
     config = load_config()
     
@@ -53,11 +53,11 @@ def validate_components():
         # Add a test document
         test_docs = [{"text": "Test document", "metadata": {"source": "test"}}]
         test_vectors = embedder.embed_chunks(["Test document"])
-        await retriever.add_documents(test_docs, test_vectors)
+        await retriever.add_documents(test_docs, test_vectors)  # Await inside async function
         
         # Test search
         query_vector = embedder.embed_text("test")
-        results = await retriever.search(query_vector.tolist(), limit=1)
+        results = await retriever.search(query_vector.tolist(), limit=1)  # Await inside async function
         assert len(results) > 0
         logger.info("✓ Retrieval component working")
     except Exception as e:
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     
     try:
         import asyncio
-        asyncio.run(validate_components())
+        asyncio.run(validate_components())  # Use asyncio.run to execute the async function
     except Exception as e:
         logger.error(f"Validation failed: {e}")
         sys.exit(1)
