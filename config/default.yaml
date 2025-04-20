@@ -1,7 +1,7 @@
 embeddings:
   model: "law-ai/InLegalBERT"
   dimension: 768
-  device: "cpu"
+  device: "cuda" if torch.cuda.is_available() else "cpu"
 
 retrieval:
   chunk_size: 512
@@ -10,12 +10,13 @@ retrieval:
   index_type: "IndexFlatIP"  # FAISS index type (can be IndexFlatIP, IndexIVFFlat, etc.)
   data_dir: "data/processed/faiss"  # Directory to store FAISS indices
   nlist: 100  # Number of clusters for IVF indices (if used)
+  device: "cuda" if torch.cuda.is_available() else "cpu"
 
 generation:
-  model: "google/gemma-1b-it"
+  model: "google/gemma-3-1b-it"
   max_new_tokens: 256
   temperature: 0.7
-  device: "cpu"
+  device: "cuda" if torch.cuda.is_available() else "cpu"
 
 api:
   host: "0.0.0.0"

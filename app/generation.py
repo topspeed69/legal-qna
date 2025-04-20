@@ -6,17 +6,17 @@ from typing import List, Dict
 logger = logging.getLogger(__name__)
 
 class Generator:
-    def __init__(self, model_name: str, device: str = "cpu", max_new_tokens: int = 256):
-        self.device = device
+    def __init__(self, model_name: str, max_new_tokens: int = 256):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.max_new_tokens = max_new_tokens
         
-        logger.info(f"Loading generation model {model_name} on {device}")
+        logger.info(f"Loading generation model {model_name} on {self.device}")
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            device_map=device,
+            device_map="auto",
             torch_dtype=torch.float16
-        )
+        ).to(self.device)
         self.model.eval()
 
     def generate_answer(self, question: str, contexts: List[Dict[str, str]]) -> str:

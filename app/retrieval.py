@@ -6,13 +6,17 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any
 import h5py
+import torch
 
 logger = logging.getLogger(__name__)
 
 class Retriever:
-    def __init__(self, dimension: int, index_type: str, data_dir: str):
-        self.dimension = dimension
-        self.data_dir = Path(data_dir)
+    def __init__(self, embedder, config):
+        self.embedder = embedder
+        self.config = config
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.dimension = config["dimension"]
+        self.data_dir = Path(config["data_dir"])
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.index_path = self.data_dir / "faiss_index.bin"
         self.metadata_path = self.data_dir / "metadata.h5"
@@ -24,15 +28,16 @@ class Retriever:
             with h5py.File(self.metadata_path, 'r') as f:
                 self.documents = json.loads(f['metadata'][()])
         else:
-            if index_type == "IndexFlatIP":
-                self.index = faiss.IndexFlatIP(dimension)
+            if config["index_type"] == "IndexFlatIP":
+                self.index = faiss.IndexFlatIP(self.dimension)
             else:
-                raise ValueError(f"Unsupported index type: {index_type}")
+                raise ValueError(f"Unsupported index type: {config['index_type']}")
             self.documents = []
-            logger.info(f"Created new FAISS index of type {index_type}")
+            logger.info(f"Created new FAISS index of type {config['index_type']}")
 
-    async def search(self, query_vector: List[float], limit: int = 5) -> List[Dict[str, Any]]:
-        query_vector = np.array(query_vector).reshape(1, -1).astype('float32')
+    async def search(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        # Ensure embeddings are computed on the correct device
+        query_vector = self.embedder.embed_text(query).to(self.device).cpu().numpy().reshape(1, -1).astype('float32')
         scores, indices = self.index.search(query_vector, limit)
         
         results = []

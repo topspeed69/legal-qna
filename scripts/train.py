@@ -83,6 +83,10 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
     
+    # Check for GPU availability
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    
     # Prepare dataset
     train_files = list(Path(args.train_data).glob("*.json"))
     dataset = LegalQADataset(train_files, tokenizer)
