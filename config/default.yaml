@@ -1,22 +1,25 @@
 embeddings:
   model: "law-ai/InLegalBERT"
   dimension: 768
-  device: "cuda" if torch.cuda.is_available() else "cpu"
+  # IMPORTANT: The python code directly in YAML value won't work.
+  # You need to resolve this in your Python code *after* loading the config.
+  # Let's set a placeholder or the desired default for now.
+  device: "auto" # Or "cuda" or "cpu" as a default string
 
 retrieval:
   chunk_size: 512
   chunk_overlap: 200
   top_k: 5
-  index_type: "IndexFlatIP"  # FAISS index type (can be IndexFlatIP, IndexIVFFlat, etc.)
-  data_dir: "data/processed/faiss"  # Directory to store FAISS indices
-  nlist: 100  # Number of clusters for IVF indices (if used)
-  device: "cuda" if torch.cuda.is_available() else "cpu"
+  index_type: "IndexFlatIP"
+  data_dir: "data/processed/faiss"
+  nlist: 100
+  device: "auto" # Or "cuda" or "cpu" as a default string
 
 generation:
   model: "google/gemma-3-1b-it"
   max_new_tokens: 256
   temperature: 0.7
-  device: "cuda" if torch.cuda.is_available() else "cpu"
+  device: "auto" # Or "cuda" or "cpu" as a default string
 
 api:
   host: "0.0.0.0"

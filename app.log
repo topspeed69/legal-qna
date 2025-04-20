@@ -2,3 +2,9 @@
   in "config/default.yaml", line 2, column 3
 expected <block end>, but found '<scalar>'
   in "config/default.yaml", line 4, column 18
+2025-04-20 15:19:51,966 [INFO] __main__: CUDA available: False. Default device: cpu
+2025-04-20 15:19:51,967 [INFO] __main__: Testing embeddings component...
+2025-04-20 15:19:51,967 [INFO] __main__: Using device 'cpu' for embeddings.
+2025-04-20 15:19:51,967 [INFO] app.embeddings: Loading embedding model law-ai/InLegalBERT on cpu
+2025-04-20 15:19:51,970 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: law-ai/InLegalBERT
+2025-04-20 15:19:53,272 [WARNING] sentence_transformers.SentenceTransformer: No sentence-transformers model found with name law-ai/InLegalBERT. Creating a new one with mean pooling.
