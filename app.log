@@ -8,3 +8,38 @@ expected <block end>, but found '<scalar>'
 2025-04-20 15:19:51,967 [INFO] app.embeddings: Loading embedding model law-ai/InLegalBERT on cpu
 2025-04-20 15:19:51,970 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: law-ai/InLegalBERT
 2025-04-20 15:19:53,272 [WARNING] sentence_transformers.SentenceTransformer: No sentence-transformers model found with name law-ai/InLegalBERT. Creating a new one with mean pooling.
+2025-04-20 17:02:22,240 [INFO] __main__: CUDA available: False. Default device: cpu
+2025-04-20 17:02:22,240 [INFO] __main__: Testing embeddings component...
+2025-04-20 17:02:22,240 [INFO] __main__: Using device 'cpu' for embeddings.
+2025-04-20 17:02:22,240 [INFO] app.embeddings: Loading embedding model law-ai/InLegalBERT on cpu
+2025-04-20 17:02:22,242 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: law-ai/InLegalBERT
+2025-04-20 17:02:23,892 [WARNING] sentence_transformers.SentenceTransformer: No sentence-transformers model found with name law-ai/InLegalBERT. Creating a new one with mean pooling.
+2025-04-20 17:03:24,288 [INFO] __main__: Testing retrieval component...
+2025-04-20 17:03:24,288 [INFO] __main__: Initializing Retriever with config: {'chunk_size': 512, 'chunk_overlap': 200, 'top_k': 5, 'index_type': 'IndexFlatIP', 'data_dir': 'data/processed/faiss', 'nlist': 100, 'device': 'auto', 'dimension': 768}
+2025-04-20 17:03:24,289 [INFO] app.retrieval: Created new FAISS index of type IndexFlatIP
+2025-04-20 17:03:24,359 [INFO] app.retrieval: Saved FAISS index to disk (metadata is in JSONL file)
+2025-04-20 17:03:24,359 [INFO] app.retrieval: Added 1 documents to FAISS index
+2025-04-20 17:03:53,550 [WARNING] huggingface_hub.file_download: Error while downloading from https://cdn-lfs.hf.co/repos/ad/e1/ade19dda49d65e1b7219f74e148c08617e187aac10856ac9e9517ea14c7777cc/293b545a543a4f7b1da8448d2f51253012830e2de5daee22f6f0c7b2d266cee8?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27model.safetensors%3B+filename%3D%22model.safetensors%22%3B&Expires=1745152342&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc0NTE1MjM0Mn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5oZi5jby9yZXBvcy9hZC9lMS9hZGUxOWRkYTQ5ZDY1ZTFiNzIxOWY3NGUxNDhjMDg2MTdlMTg3YWFjMTA4NTZhYzllOTUxN2VhMTRjNzc3N2NjLzI5M2I1NDVhNTQzYTRmN2IxZGE4NDQ4ZDJmNTEyNTMwMTI4MzBlMmRlNWRhZWUyMmY2ZjBjN2IyZDI2NmNlZTg%7EcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj0qIn1dfQ__&Signature=N%7ETPoUtclZpgNR02luP4ncvI5wJ0pSpneaXBxVSbFvzomzm80PD0NQpgbuMO0u9T%7Ei9bR5WsROOirA%7EfSPF5RgnbAOA4RViysN6mmo1rHquOTmuRY6w9LDUrZe311jW2y2PllsIuVDktTygS3fyImYn2v76uy0uawzwzQ5ZE9DkM2NUUCmaBhxbX2iBFNWdm%7ElQSHXGitZWMY3kVWydjLumZXwZehFPmQZ2lNYzz1JgE1dx5P0aVTumOpG2kE%7Ej0QhOVr5WvIFCO0p4ea4lbPwQWevjGYGlHW62kLyTCQVUv9pdw-8t7fQFJTEeYpOcI%7E4L5je99gLqcB4ao0FFbuA__&Key-Pair-Id=K3RPWS32NSSJCE: HTTPSConnectionPool(host='cdn-lfs.hf.co', port=443): Read timed out.
+Trying to resume download...
+2025-04-20 17:06:17,592 [INFO] __main__: CUDA available: False. Default device: cpu
+2025-04-20 17:06:17,593 [INFO] __main__: Testing embeddings component...
+2025-04-20 17:06:17,593 [INFO] __main__: Using device 'cpu' for embeddings.
+2025-04-20 17:06:17,593 [INFO] app.embeddings: Loading embedding model law-ai/InLegalBERT on cpu
+2025-04-20 17:06:17,595 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: law-ai/InLegalBERT
+2025-04-20 17:06:19,553 [WARNING] sentence_transformers.SentenceTransformer: No sentence-transformers model found with name law-ai/InLegalBERT. Creating a new one with mean pooling.
+2025-04-20 17:06:23,267 [INFO] __main__: Testing retrieval component...
+2025-04-20 17:06:23,267 [INFO] __main__: Initializing Retriever with config: {'chunk_size': 512, 'chunk_overlap': 200, 'top_k': 5, 'index_type': 'IndexFlatIP', 'data_dir': 'data/processed/faiss', 'nlist': 100, 'device': 'auto', 'dimension': 768}
+2025-04-20 17:06:23,282 [INFO] app.retrieval: Loaded existing FAISS index from data\processed\faiss\faiss_index.bin
+2025-04-20 17:06:23,337 [INFO] app.retrieval: Saved FAISS index to disk (metadata is in JSONL file)
+2025-04-20 17:06:23,337 [INFO] app.retrieval: Added 1 documents to FAISS index
+2025-04-20 17:06:43,908 [INFO] __main__: CUDA available: False. Default device: cpu
+2025-04-20 17:06:43,909 [INFO] __main__: Testing embeddings component...
+2025-04-20 17:06:43,909 [INFO] __main__: Using device 'cpu' for embeddings.
+2025-04-20 17:06:43,909 [INFO] app.embeddings: Loading embedding model law-ai/InLegalBERT on cpu
+2025-04-20 17:06:43,911 [INFO] sentence_transformers.SentenceTransformer: Load pretrained SentenceTransformer: law-ai/InLegalBERT
+2025-04-20 17:06:44,589 [WARNING] sentence_transformers.SentenceTransformer: No sentence-transformers model found with name law-ai/InLegalBERT. Creating a new one with mean pooling.
+2025-04-20 17:06:47,570 [INFO] __main__: Testing retrieval component...
+2025-04-20 17:06:47,570 [INFO] __main__: Initializing Retriever with config: {'chunk_size': 512, 'chunk_overlap': 200, 'top_k': 5, 'index_type': 'IndexFlatIP', 'data_dir': 'data/processed/faiss', 'nlist': 100, 'device': 'auto', 'dimension': 768}
+2025-04-20 17:06:47,582 [INFO] app.retrieval: Loaded existing FAISS index from data\processed\faiss\faiss_index.bin
+2025-04-20 17:06:47,654 [INFO] app.retrieval: Saved FAISS index to disk (metadata is in JSONL file)
+2025-04-20 17:06:47,654 [INFO] app.retrieval: Added 1 documents to FAISS index

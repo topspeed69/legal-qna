@@ -16,3 +16,4 @@ scikit-learn==1.6.1
 sentence-transformers==4.1.0
 accelerate==1.6.0
 datasets==3.5.0
+sqlite3

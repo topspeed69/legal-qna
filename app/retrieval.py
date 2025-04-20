@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 import h5py
 import torch
+import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -19,44 +20,45 @@ class Retriever:
         self.data_dir = Path(config["data_dir"])
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.index_path = self.data_dir / "faiss_index.bin"
-        self.metadata_path = self.data_dir / "metadata.jsonl"
+        self.sqlite_path = self.data_dir / "metadata.sqlite3"
         
         # Initialize or load FAISS index
         if os.path.exists(self.index_path):
             self.index = faiss.read_index(str(self.index_path))
             logger.info(f"Loaded existing FAISS index from {self.index_path}")
-            self.num_documents = self._count_metadata_lines()
         else:
             if config["index_type"] == "IndexFlatIP":
                 self.index = faiss.IndexFlatIP(self.dimension)
             else:
                 raise ValueError(f"Unsupported index type: {config['index_type']}")
-            self.num_documents = 0
             logger.info(f"Created new FAISS index of type {config['index_type']}")
+        self._init_sqlite()
 
-    def _count_metadata_lines(self):
-        if not os.path.exists(self.metadata_path):
-            return 0
-        with open(self.metadata_path, 'r', encoding='utf-8') as f:
-            return sum(1 for _ in f)
+    def _init_sqlite(self):
+        self.conn = sqlite3.connect(self.sqlite_path)
+        self.conn.execute("""
+            CREATE TABLE IF NOT EXISTS metadata (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                text TEXT,
+                metadata TEXT
+            )
+        """)
+        self.conn.commit()
 
-    def _append_metadata(self, documents):
-        with open(self.metadata_path, 'a', encoding='utf-8') as f:
-            for doc in documents:
-                f.write(json.dumps(doc) + '\n')
+    def _insert_metadata(self, documents):
+        with self.conn:
+            self.conn.executemany(
+                "INSERT INTO metadata (text, metadata) VALUES (?, ?)",
+                [(doc["text"], json.dumps(doc["metadata"])) for doc in documents]
+            )
 
     def _get_metadata_by_indices(self, indices):
-        # Only load required lines
-        results = []
-        if not os.path.exists(self.metadata_path):
-            return results
-        with open(self.metadata_path, 'r', encoding='utf-8') as f:
-            for i, line in enumerate(f):
-                if i in indices:
-                    results.append(json.loads(line))
-                if len(results) == len(indices):
-                    break
-        return results
+        # indices are FAISS row ids (0-based)
+        if not indices:
+            return []
+        q = f"SELECT text, metadata FROM metadata WHERE id IN ({','.join(['?']*len(indices))}) ORDER BY id"
+        cur = self.conn.execute(q, [i+1 for i in indices])  # SQLite AUTOINCREMENT starts at 1
+        return [{"text": row[0], "metadata": json.loads(row[1])} for row in cur.fetchall()]
 
     async def search(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         query_vector = self.embedder.embed_text(query).to(self.device).cpu().numpy().reshape(1, -1).astype('float32')
@@ -75,11 +77,10 @@ class Retriever:
     async def add_documents(self, documents: List[Dict[str, Any]], vectors: List[List[float]]):
         vectors_array = np.array(vectors).astype('float32')
         self.index.add(vectors_array)
-        self._append_metadata(documents)
-        self.num_documents += len(documents)
+        self._insert_metadata(documents)
         self._save_state()
         logger.info(f"Added {len(documents)} documents to FAISS index")
 
     def _save_state(self):
         faiss.write_index(self.index, str(self.index_path))
-        logger.info("Saved FAISS index to disk (metadata is in JSONL file)")
+        logger.info("Saved FAISS index to disk (metadata is in SQLite DB)")
