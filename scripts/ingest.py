@@ -11,6 +11,7 @@ from tqdm import tqdm
 import torch
 import asyncio
 
+# Add the project root to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.embeddings import Embedder
@@ -84,12 +85,14 @@ def process_judgment(file_path: Path, config: Dict, mappings: Dict) -> List[Dict
     chunks = chunk_text(text, config["retrieval"]["chunk_size"], config["retrieval"]["chunk_overlap"])
     return [{"text": chunk, "metadata": {"source": str(file_path), **metadata, "chunk_index": i, "total_chunks": len(chunks)}} for i, chunk in enumerate(chunks)]
 
+
 async def main():
     """Main function to ingest judgments."""
     parser = argparse.ArgumentParser(description="Ingest court judgments into FAISS index")
     parser.add_argument("--input-dir", required=True, help="Directory containing judgment files")
     parser.add_argument("--mapping-file", help="IPC to BNS mapping file", default="data/mappings/ipc_bns_mapping.json")
-    parser.add_argument("--batch-size", type=int, default=32, help="Batch size for processing")
+    # Repurposed batch-size for chunk batching
+    parser.add_argument("--chunk-batch-size", type=int, default=64, help="Batch size for processing chunks")
     args = parser.parse_args()
 
     setup_logging()
@@ -117,21 +120,33 @@ async def main():
     judgment_files = list(input_dir.glob("**/*.json")) + list(input_dir.glob("**/*.txt"))
     logger.info(f"Found {len(judgment_files)} judgment files to process")
 
-    for i in range(0, len(judgment_files), args.batch_size):
-        batch_files = judgment_files[i:i + args.batch_size]
-        batch_documents = []
-        for file_path in tqdm(batch_files, desc=f"Batch {i//args.batch_size + 1}"):
-            try:
-                documents = process_judgment(file_path, config, mappings)
-                batch_documents.extend(documents)
-            except Exception as e:
-                logger.error(f"Error processing {file_path}: {e}")
-                continue
-        if batch_documents:
-            texts = [doc["text"] for doc in batch_documents]
-            vectors = embedder.embed_chunks(texts)
-            await retriever.add_documents(batch_documents, vectors.tolist())
-            logger.info(f"Processed and indexed {len(batch_documents)} chunks")
+    total_chunks_processed = 0
+    # Iterate through files one by one to manage memory better
+    for file_path in tqdm(judgment_files, desc="Processing files"):
+        try:
+            # Process the entire file to get all its chunks
+            file_chunks = process_judgment(file_path, config, mappings)
+            logger.info(f"File {file_path}: Generated {len(file_chunks)} chunks.")
+
+            # Process chunks of THIS file in smaller batches for embedding/indexing
+            for i in range(0, len(file_chunks), args.chunk_batch_size):
+                chunk_batch = file_chunks[i : i + args.chunk_batch_size]
+                if chunk_batch:
+                    # Embed this batch of chunks
+                    texts = [doc["text"] for doc in chunk_batch]
+                    vectors = embedder.embed_chunks(texts)
+
+                    # Add this batch to FAISS index
+                    await retriever.add_documents(chunk_batch, vectors.tolist())
+                    total_chunks_processed += len(chunk_batch)
+                    # Optional: Log progress more frequently for large files
+                    # logger.info(f"Processed {total_chunks_processed} total chunks. Last batch size: {len(chunk_batch)}")
+
+        except Exception as e:
+            logger.error(f"Error processing {file_path}: {e}")
+            continue
+
+    logger.info(f"Finished ingestion. Total chunks processed: {total_chunks_processed}")
 
 if __name__ == "__main__":
     asyncio.run(main())
