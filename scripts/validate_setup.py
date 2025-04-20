@@ -5,7 +5,8 @@ import yaml
 import torch
 import faiss
 import numpy as np
-
+import logging
+import logging.config
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.embeddings import Embedder
