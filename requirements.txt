@@ -1,0 +1,16 @@
+fastapi==0.109.1
+uvicorn==0.27.0
+transformers==4.37.2
+torch
+pydantic==2.6.1
+python-multipart==0.0.6
+PyYAML==6.0.1
+numpy==1.24.3
+faiss-cpu==1.7.4  # Use faiss-gpu for GPU support
+h5py==3.10.0
+pandas==2.1.4
+tqdm==4.66.1
+scikit-learn==1.4.0
+sentence-transformers==2.5.1
+accelerate==0.27.2  # For efficient model loading
+datasets==2.17.1  # For handling training datasets
